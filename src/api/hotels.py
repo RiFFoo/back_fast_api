@@ -25,15 +25,15 @@ async def get_hotels(
         if id:
             query = query.filter_by(id = id)
         if title:
-            query = query.filter(func.lower(HotelsOrm.title).like(f'%{title}%'))
+            query = query.filter(func.lower(HotelsOrm.title).contains(title.strip().lower()))
         if location:
-            query = query.filter(func.lower(HotelsOrm.location).like(f'%{location}%'))
+            query = query.filter(func.lower(HotelsOrm.location).contains(location.strip().lower()))
         query = (
             query
             .limit(per_page)
             .offset(per_page * (pagination.page - 1))
         )
-
+        print(query.compile(compile_kwargs={"literal_binds": True}))
         result = await session.execute(query)
 
         hotel = result.scalars().all()
@@ -54,14 +54,14 @@ async def create_hotel(hotel_data: Hotel = Body(openapi_examples={
         "summary": "Сочи",
         "value": {
             "title": "Отель Сочи 5 звезд у моря",
-            "location": "ул. моря 1",
+            "location": "г. Сочи, ул. моря 1",
         }
     },
     "2": {
-        "summary": "Dubai",
+        "summary": "Дубай",
         "value": {
-            "title": "Отель Дубай",
-            "location": "ул. Шейха 2",
+            "title": "Hotel Dubai resort",
+            "location": "Sheikh street 2",
         }
     }
     })
@@ -98,3 +98,6 @@ def patch_hotel(
                 hotel["name"] = hotel_data.name
             break
     return {"status": "OK"}
+
+
+#для теста гита
