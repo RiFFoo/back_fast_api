@@ -13,6 +13,7 @@ class HotelsRepository(BaseRepository):
             title,
             limit,
             offset,
+            id,
     ):
         query = select(HotelsOrm)
         if location:
