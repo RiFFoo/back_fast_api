@@ -2,7 +2,7 @@ from fastapi import Query, APIRouter, Body
 
 from src.database import async_session_maker
 from src.repositories.hotels import HotelsRepository
-from src.schemas.hotels import Hotel, HotelPatch
+from src.schemas.hotels import HotelPatch, HotelAdd
 
 from src.api.dependencies import PaginationDep
 
@@ -21,11 +21,11 @@ async def get_hotels(
             location=location,
             title=title,
             limit=per_page,
-            offset=per_page * (pagination.page - 1)
+            offset=per_page * (pagination.page - 1),
         )
 
-@router.get("/one")
-async def get_one_hotels(hotel_id: int):
+@router.get("/{hotel_id}")
+async def get_one_hotel(hotel_id: int):
     async with async_session_maker() as session:
         return await HotelsRepository(session).get_one_or_none(id=hotel_id)
 
@@ -37,7 +37,7 @@ async def delete_hotel(hotel_id: int):
     return {"status" : "OK"}
 
 @router.post("")
-async def create_hotel(hotel_data: Hotel = Body(openapi_examples={
+async def create_hotel(hotel_data: HotelAdd = Body(openapi_examples={
     "1": {
         "summary": "Сочи",
         "value": {
@@ -62,7 +62,7 @@ async def create_hotel(hotel_data: Hotel = Body(openapi_examples={
         return {"status": "OK", "data": hotel_id}
 
 @router.put("{hotel_id}", summary="Обновление")
-async def put_hotel(hotel_id: int, hotel_data: Hotel):
+async def put_hotel(hotel_id: int, hotel_data: HotelAdd):
     async with async_session_maker() as session:
         await HotelsRepository(session).edit(hotel_data, id=hotel_id)
         await session.commit()
